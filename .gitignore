@@ -29,3 +29,6 @@ dist/
 /datasets
 /models
 /output
+
+# core python files
+core.*_python

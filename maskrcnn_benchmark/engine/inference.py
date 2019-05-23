@@ -66,12 +66,14 @@ def inference(
         expected_results=(),
         expected_results_sigma_tol=4,
         output_folder=None,
+        maskiou_on=False
 ):
     # convert to a torch.device for efficiency
     device = torch.device(device)
     num_devices = get_world_size()
     logger = logging.getLogger("maskrcnn_benchmark.inference")
     dataset = data_loader.dataset
+
     logger.info("Start evaluation on {} dataset({} images).".format(dataset_name, len(dataset)))
     total_timer = Timer()
     inference_timer = Timer()
@@ -107,6 +109,7 @@ def inference(
         iou_types=iou_types,
         expected_results=expected_results,
         expected_results_sigma_tol=expected_results_sigma_tol,
+        maskiou_on=maskiou_on,
     )
 
     return evaluate(dataset=dataset,

@@ -155,6 +155,10 @@ process will only use a single GPU.
 export NGPUS=8
 python -m torch.distributed.launch --nproc_per_node=$NGPUS /path_to_maskrcnn_benchmark/tools/train_net.py --config-file "path/to/config/file.yaml" MODEL.RPN.FPN_POST_NMS_TOP_N_TRAIN images_per_gpu x 1000
 ```
+```
+# run on venus platform
+python -m torch.distributed.launch --nproc_per_node=4 /path_to_maskrcnn_benchmark/tools/train_net.py --config-file "path/to/config/file.yaml"
+```
 Note we should set `MODEL.RPN.FPN_POST_NMS_TOP_N_TRAIN` follow the rule in Single-GPU training.
 
 ## Evaluation

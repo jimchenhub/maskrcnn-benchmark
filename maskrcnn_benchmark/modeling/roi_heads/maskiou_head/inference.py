@@ -24,14 +24,17 @@ class MaskIoUPostProcessor(nn.Module):
         maskious = pred_maskiou[index, labels]
         maskious = [maskious]
         results = []
-        for maskiou, box in zip(maskious, boxes):
+        count = 0
+        # for maskiou, box in zip(maskious, boxes):
+        for box in boxes:
             bbox = BoxList(box.bbox, box.size, mode="xyxy")
             for field in box.fields():
                 bbox.add_field(field, box.get_field(field))
             bbox_scores = bbox.get_field("scores")
-            mask_scores = bbox_scores * maskiou
+            mask_scores = bbox_scores * maskious[0][count:count+len(bbox_scores)]
             bbox.add_field("mask_scores", mask_scores)
             results.append(bbox)
+            count += len(bbox_scores)
 
         return results
 

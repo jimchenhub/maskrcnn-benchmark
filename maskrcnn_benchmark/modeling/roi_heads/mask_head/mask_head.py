@@ -73,7 +73,13 @@ class ROIMaskHead(torch.nn.Module):
         if self.cfg.MODEL.MASKIOU_ON:
             if not self.training:
                 result = self.post_processor(mask_logits, proposals)
-                return x, result, {}, roi_feature, result[0].get_field("mask"), result[0].get_field("labels"), None
+                # return x, result, {}, roi_feature, result[0].get_field("mask"), result[0].get_field("labels"), None
+                all_mask = result[0].get_field("mask")
+                all_label = result[0].get_field("labels")
+                for i in range(1, len(result)):
+                    all_mask = torch.cat((all_mask, result[i].get_field("mask")), 0)
+                    all_label = torch.cat((all_label, result[i].get_field("labels")), 0)
+                return x, result, {}, roi_feature, all_mask, all_label, None
 
             loss_mask, selected_mask, labels, maskiou_targets = self.loss_evaluator(proposals, mask_logits, targets)
             return x, all_proposals, dict(loss_mask=loss_mask), roi_feature, selected_mask, labels, maskiou_targets

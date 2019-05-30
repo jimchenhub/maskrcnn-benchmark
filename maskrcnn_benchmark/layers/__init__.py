@@ -45,5 +45,6 @@ __all__ = [
     'DeformRoIPoolingPack',
     'ModulatedDeformRoIPoolingPack',
     'l2_loss',
+    'ranking_loss',
 ]
 

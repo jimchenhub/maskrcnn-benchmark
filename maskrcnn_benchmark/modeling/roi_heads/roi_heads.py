@@ -26,6 +26,7 @@ class CombinedROIHeads(torch.nn.ModuleDict):
         losses = {}
         # TODO rename x to roi_box_features, if it doesn't increase memory consumption
         x, detections, loss_box = self.box(features, proposals, targets)
+        roi_box_features = x
         losses.update(loss_box)
         if self.cfg.MODEL.MASK_ON:
             mask_features = features
@@ -49,6 +50,12 @@ class CombinedROIHeads(torch.nn.ModuleDict):
 
                 loss_maskiou, detections = self.maskiou(roi_feature, detections, selected_mask, labels, maskiou_targets)
                 losses.update(loss_maskiou)
+            roi_mask_features = x
+
+            # if relation head used
+            if self.cfg.MODEL.RELATION_ON:
+                loss_relation, detections = self.relation(roi_mask_features, detections, targets)
+                losses.update(loss_relation)
 
         if self.cfg.MODEL.KEYPOINT_ON:
             keypoint_features = features

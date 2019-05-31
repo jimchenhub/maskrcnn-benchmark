@@ -12,19 +12,17 @@ from maskrcnn_benchmark.layers import ConvTranspose2d
 class RelationPredictor(nn.Module):
     def __init__(self, cfg):
         super(RelationPredictor, self).__init__()
-        num_classes = cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES
 
-        self.maskiou = nn.Linear(1024, num_classes)
+        self.relation_val = nn.Linear(1024, 1)
 
-        nn.init.normal_(self.maskiou.weight, mean=0, std=0.01)
-        nn.init.constant_(self.maskiou.bias, 0)
+        nn.init.normal_(self.relation_val.weight, mean=0, std=0.01)
+        nn.init.constant_(self.relation_val.bias, 0)
 
 
     def forward(self, x):
-        maskiou = self.maskiou(x)
-        return maskiou
+        relation_val = self.relation_val(x)
+        return relation_val
 
 
 def make_roi_relation_predictor(cfg):
-    func = RelationPredictor
-    return func(cfg)
+    return RelationPredictor(cfg)

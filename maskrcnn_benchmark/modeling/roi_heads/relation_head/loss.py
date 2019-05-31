@@ -21,3 +21,5 @@ def make_roi_relation_loss_evaluator(cfg):
     loss_evaluator = RelationLossComputation(loss_weight)
 
     return loss_evaluator
+
+

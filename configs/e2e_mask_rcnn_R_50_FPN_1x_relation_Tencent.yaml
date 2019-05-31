@@ -31,6 +31,7 @@ MODEL:
     RESOLUTION: 28
     SHARE_BOX_FEATURE_EXTRACTOR: False
   MASK_ON: True
+  RELATION_ON: True
 DATASETS:
   TRAIN: ("tencent_auto_drive_2019_train_cocostyle",)
   TEST: ("tencent_auto_drive_2019_val_cocostyle",)
@@ -43,12 +44,12 @@ INPUT:
   MIN_SIZE_TEST: 600
   MAX_SIZE_TEST: 960
 SOLVER:
-  IMS_PER_BATCH: 16
-  BASE_LR: 0.02
+  IMS_PER_BATCH: 2
+  BASE_LR: 0.0025
   WEIGHT_DECAY: 0.0001
   STEPS: (60000, 80000)
   MAX_ITER: 90000
   CHECKPOINT_PERIOD: 10000
 TEST:
   IMS_PER_BATCH: 32
-OUTPUT_DIR: output_6_class/
+OUTPUT_DIR: output/

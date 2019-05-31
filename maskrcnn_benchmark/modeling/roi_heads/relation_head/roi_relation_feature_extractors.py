@@ -17,33 +17,29 @@ class RelationFeatureExtractor(nn.Module):
     def __init__(self, cfg):
         super(RelationFeatureExtractor, self).__init__()
 
-        input_channels = 257
+        input_channels = 256
 
-        self.maskiou_fcn1 = Conv2d(input_channels, 256, 3, 1, 1)
-        self.maskiou_fcn2 = Conv2d(256, 256, 3, 1, 1)
-        self.maskiou_fcn3 = Conv2d(256, 256, 3, 1, 1)
-        self.maskiou_fcn4 = Conv2d(256, 256, 3, 2, 1)
-        self.maskiou_fc1 = nn.Linear(256 * 7 * 7, 1024)
-        self.maskiou_fc2 = nn.Linear(1024, 1024)
+        self.relation_fcn1 = nn.Conv2d(input_channels, 256, 3, 1, 1)
+        self.relation_fcn2 = nn.Conv2d(256, 128, 3, 1, 1)
+        self.relation_fcn3 = nn.Conv2d(128, 64, 3, 1, 1)
+        self.relation_fcn4 = nn.Conv2d(64, 32, 3, 1, 1)
+        self.relation_fc1 = nn.Linear(32 * 14 * 14, 1024)
 
-        for l in [self.maskiou_fcn1, self.maskiou_fcn2, self.maskiou_fcn3, self.maskiou_fcn4]:
+        for l in [self.relation_fcn1, self.relation_fcn2, self.relation_fcn3, self.relation_fcn4]:
             nn.init.kaiming_normal_(l.weight, mode="fan_out", nonlinearity="relu")
             nn.init.constant_(l.bias, 0)
 
-        for l in [self.maskiou_fc1, self.maskiou_fc2]:
+        for l in [self.relation_fc1]:
             nn.init.kaiming_uniform_(l.weight, a=1)
             nn.init.constant_(l.bias, 0)
 
-    def forward(self, x, mask):
-        mask_pool = F.max_pool2d(mask, kernel_size=2, stride=2)
-        x = torch.cat((x, mask_pool), 1)
-        x = F.relu(self.maskiou_fcn1(x))
-        x = F.relu(self.maskiou_fcn2(x))
-        x = F.relu(self.maskiou_fcn3(x))
-        x = F.relu(self.maskiou_fcn4(x))
+    def forward(self, x):
+        x = F.relu(self.relation_fcn1(x))
+        x = F.relu(self.relation_fcn2(x))
+        x = F.relu(self.relation_fcn3(x))
+        x = F.relu(self.relation_fcn4(x))
         x = x.view(x.size(0), -1)
-        x = F.relu(self.maskiou_fc1(x))
-        x = F.relu(self.maskiou_fc2(x))
+        x = F.relu(self.relation_fc1(x))
 
         return x
 

@@ -54,7 +54,7 @@ class CombinedROIHeads(torch.nn.ModuleDict):
 
             # if relation head used
             if self.cfg.MODEL.RELATION_ON:
-                loss_relation, detections = self.relation(roi_mask_features, detections, targets)
+                detections, loss_relation = self.relation(roi_mask_features, detections, targets)
                 losses.update(loss_relation)
 
         if self.cfg.MODEL.KEYPOINT_ON:

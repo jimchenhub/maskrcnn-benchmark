@@ -70,7 +70,7 @@ class ROIRelationHead(torch.nn.Module):
             return result, {}
 
         loss_relation = self.loss_evaluator(proposals, relation_logits, targets)
-        return all_proposals, dict(loss_mask=loss_relation)
+        return all_proposals, dict(loss_relation=loss_relation)
 
 
 def build_roi_relation_head(cfg):

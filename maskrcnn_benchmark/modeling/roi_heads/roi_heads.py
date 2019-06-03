@@ -5,6 +5,7 @@ from .box_head.box_head import build_roi_box_head
 from .mask_head.mask_head import build_roi_mask_head
 from .maskiou_head.maskiou_head import build_roi_maskiou_head
 from .keypoint_head.keypoint_head import build_roi_keypoint_head
+from .relation_head.relation_head import build_roi_relation_head
 
 
 class CombinedROIHeads(torch.nn.ModuleDict):
@@ -25,6 +26,7 @@ class CombinedROIHeads(torch.nn.ModuleDict):
         losses = {}
         # TODO rename x to roi_box_features, if it doesn't increase memory consumption
         x, detections, loss_box = self.box(features, proposals, targets)
+        roi_box_features = x
         losses.update(loss_box)
         if self.cfg.MODEL.MASK_ON:
             mask_features = features
@@ -48,6 +50,12 @@ class CombinedROIHeads(torch.nn.ModuleDict):
 
                 loss_maskiou, detections = self.maskiou(roi_feature, detections, selected_mask, labels, maskiou_targets)
                 losses.update(loss_maskiou)
+            roi_mask_features = x
+
+            # if relation head used
+            if self.cfg.MODEL.RELATION_ON:
+                detections, loss_relation = self.relation(roi_mask_features, detections, targets)
+                losses.update(loss_relation)
 
         if self.cfg.MODEL.KEYPOINT_ON:
             keypoint_features = features
@@ -80,6 +88,8 @@ def build_roi_heads(cfg, in_channels):
             roi_heads.append(("maskiou", build_roi_maskiou_head(cfg)))
     if cfg.MODEL.KEYPOINT_ON:
         roi_heads.append(("keypoint", build_roi_keypoint_head(cfg, in_channels)))
+    if cfg.MODEL.RELATION_ON:
+        roi_heads.append(("relation", build_roi_relation_head(cfg)))
 
     # combine individual heads in a single module
     if roi_heads:

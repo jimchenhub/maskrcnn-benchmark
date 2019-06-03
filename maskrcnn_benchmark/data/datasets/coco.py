@@ -5,6 +5,8 @@ import torchvision
 from maskrcnn_benchmark.structures.bounding_box import BoxList
 from maskrcnn_benchmark.structures.segmentation_mask import SegmentationMask
 from maskrcnn_benchmark.structures.keypoint import PersonKeypoints
+from maskrcnn_benchmark.structures.overlap_relation import OverlapRelation
+from maskrcnn_benchmark.structures.instance_id import InstanceId
 
 
 min_keypoints_per_image = 10
@@ -80,11 +82,19 @@ class COCODataset(torchvision.datasets.coco.CocoDetection):
         target.add_field("labels", classes)
 
         masks = [obj["segmentation"] for obj in anno]
-
-        # print(len(anno))
         masks = SegmentationMask(masks, img.size, mode='poly')
         target.add_field("masks", masks)
-        # print(len(masks))
+
+        # ----------------------------------
+        # add relation field
+        overlaps = [obj["overlap"] for obj in anno]
+        relations = OverlapRelation(overlaps)
+        target.add_field("relations", relations)
+        # add instance id field
+        instance_ids = [obj["id"] for obj in anno]
+        instance_ids = InstanceId(instance_ids)
+        target.add_field("instance_ids", instance_ids)
+        # ----------------------------------
 
         if anno and "keypoints" in anno[0]:
             keypoints = [obj["keypoints"] for obj in anno]

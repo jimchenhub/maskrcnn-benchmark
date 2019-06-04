@@ -211,17 +211,39 @@ class COCODemo(object):
         """
         masks = predictions.get_field("mask").numpy()
         labels = predictions.get_field("labels")
+        relation_vals = predictions.get_field("relation_val").numpy()
+        inds = np.argsort(relation_vals)
 
-        colors = self.compute_colors_for_labels(labels).tolist()
+        overlay = image.copy()
+        output = image.copy()
+
+        colors = []
+        num = len(labels)
+        for i in range(num):
+            ind = np.argwhere(inds == i)[0][0]
+            color = np.uint8([[[0, 150, 0+int(200/num)*ind]]])
+            bgr_color = cv2.cvtColor(color, cv2.COLOR_HSV2BGR)[0][0].tolist()
+            colors.append(bgr_color)
+
+        # colors = self.compute_colors_for_labels(labels).tolist()
+        # for mask, color in zip(masks, colors):
+        #     thresh = mask[0, :, :, None]
+        #     contours, hierarchy = cv2_util.findContours(
+        #         thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+        #     )
+        #     image = cv2.drawContours(image, contours, -1, color, 3)
+        # composite = image
 
         for mask, color in zip(masks, colors):
             thresh = mask[0, :, :, None]
             contours, hierarchy = cv2_util.findContours(
                 thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
             )
-            image = cv2.drawContours(image, contours, -1, color, 3)
+            overlay = cv2.fillPoly(overlay, contours, color)
 
-        composite = image
+        alpha = 0.7
+        cv2.addWeighted(overlay, alpha, output, 1 - alpha, 0, output)
+        composite = output
 
         return composite
 
@@ -282,13 +304,16 @@ class COCODemo(object):
         """
         scores = predictions.get_field("scores").tolist()
         labels = predictions.get_field("labels").tolist()
+        relation_vals = predictions.get_field("relation_val").tolist()
         labels = [self.CATEGORIES[i] for i in labels]
         boxes = predictions.bbox
 
-        template = "{}: {:.2f}"
-        for box, score, label in zip(boxes, scores, labels):
+        # template = "{}: {:.2f}, {:.4f}"
+        template = "{:.4f}"
+        for box, score, label, val in zip(boxes, scores, labels, relation_vals):
             x, y = box[:2]
-            s = template.format(label, score)
+            # s = template.format(label, score, val)
+            s = template.format(val)
             cv2.putText(
                 image, s, (x, y), cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1
             )

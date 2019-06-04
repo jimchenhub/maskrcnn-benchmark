@@ -21,13 +21,9 @@ class RelationLossComputation(object):
             pred_val = pred_vals[pos:pos+len(proposal)]
             pos += len(proposal)
             # get targets relations
-            relations = target.get_field("relations")
-            instance_ids = target.get_field("instance_ids")
-            relation_gt = {}
-            for rel, ins_id in zip(relations, instance_ids):
-                ins_id = int(ins_id)
-                for i in rel:
-                    relation_gt[(i, ins_id)] = torch.Tensor([1]).to(self.device)
+            relation_gt = target.get_field("relations")["relations"]
+            for k,v in relation_gt.items():
+                relation_gt[k] = v.to(self.device)
             # get proposal prediction
             pred_instance_ids = proposal.get_field("instance_ids")
             for i in range(len(pred_instance_ids)):

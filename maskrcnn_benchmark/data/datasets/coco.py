@@ -86,14 +86,14 @@ class COCODataset(torchvision.datasets.coco.CocoDetection):
         target.add_field("masks", masks)
 
         # ----------------------------------
+        # add instance id field
+        ins_ids = [obj["id"] for obj in anno]
+        instance_ids = InstanceId(ins_ids)
+        target.add_field("instance_ids", instance_ids)
         # add relation field
         overlaps = [obj["overlap"] for obj in anno]
-        relations = OverlapRelation(overlaps)
+        relations = OverlapRelation(overlaps, instance_ids)
         target.add_field("relations", relations)
-        # add instance id field
-        instance_ids = [obj["id"] for obj in anno]
-        instance_ids = InstanceId(instance_ids)
-        target.add_field("instance_ids", instance_ids)
         # ----------------------------------
 
         if anno and "keypoints" in anno[0]:

@@ -15,7 +15,7 @@ class RelationLossComputation(object):
 
     def __call__(self, proposals, pred_vals, targets):
         pos = 0
-        losses = 0.0
+        losses = torch.Tensor([0.0]).to(self.device)
         count = 0
         for proposal, target in zip(proposals, targets):
             pred_val = pred_vals[pos:pos+len(proposal)]
@@ -28,7 +28,6 @@ class RelationLossComputation(object):
                 ins_id = int(ins_id)
                 for i in rel:
                     relation_gt[(i, ins_id)] = torch.Tensor([1]).to(self.device)
-            # print(relation_gt)
             # get proposal prediction
             pred_instance_ids = proposal.get_field("instance_ids")
             for i in range(len(pred_instance_ids)):
@@ -44,8 +43,10 @@ class RelationLossComputation(object):
                         losses += ranking_loss(val_j, val_i, relation_gt[(ins_j, ins_i)])
                         count += 1
         # normalizaiton
-        losses /= count
-        losses *= self.loss_weight
+        if count > 0:
+            losses /= count
+            losses *= self.loss_weight
+        losses = torch.squeeze(losses, dim=0)
         return losses
 
 

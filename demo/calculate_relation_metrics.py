@@ -3,6 +3,7 @@ import matplotlib.pylab as pylab
 import matplotlib.pyplot as plt
 import cv2
 import tqdm
+import time
 from PIL import Image
 import torch
 from torchvision import transforms as T
@@ -89,6 +90,7 @@ data_loader = data_loaders[0]
 all_acc_num = 0
 all_count = 0
 print(len(data_loader))
+t1 = time.time()
 for ni, (images, targets, image_ids) in enumerate(data_loader):
     images = images.to(device)
     with torch.no_grad():
@@ -100,9 +102,11 @@ for ni, (images, targets, image_ids) in enumerate(data_loader):
         scores = output.get_field("scores")
         keep = torch.nonzero(scores > confidence_threshold).squeeze(1)
         output = output[keep]
-
-        match_quality_matrix = boxlist_iou(target, output)
-        matched_idxs = matcher(match_quality_matrix).tolist()
+        try:
+            match_quality_matrix = boxlist_iou(target, output)
+            matched_idxs = matcher(match_quality_matrix).tolist()
+        except:
+            continue
 
         pred_vals = output.get_field("relation_val").tolist()
         target_isntance_ids = target.get_field("instance_ids").tolist()
@@ -134,6 +138,8 @@ for ni, (images, targets, image_ids) in enumerate(data_loader):
         all_acc_num += acc_num
         all_count += count
     if ni % 10 == 0:
-        print(ni)
+        t2 = time.time()
+        print(t2-t1, ni)
+        t1 = time.time()
 
 print(all_acc_num/all_count)

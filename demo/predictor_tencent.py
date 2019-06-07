@@ -48,7 +48,7 @@ class COCODemo(object):
         self.masker = Masker(threshold=mask_threshold, padding=1)
 
         # used to make colors for each class
-        self.palette = torch.tensor([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
+        self.palette = torch.tensor([50,20,100])
 
         self.cpu_device = torch.device("cpu")
         self.confidence_threshold = confidence_threshold
@@ -172,8 +172,17 @@ class COCODemo(object):
         """
         Simple function that adds fixed colors depending on the class
         """
-        colors = labels[:, None] * self.palette
-        colors = (colors % 255).numpy().astype("uint8")
+        # colors = labels[:, None] * self.palette
+        color_dict = {
+            1: np.array([0,0,200]),
+            2: np.array([50,200,0]),
+            3: np.array([150,120,10]),
+            4: np.array([10,120,150]),
+            5: np.array([150,20,10]),
+            6: np.array([150,0,200]),
+        }
+        colors = np.array([color_dict[int(label)] for label in labels]).astype("uint8")
+        # colors = (colors % 255).numpy().astype("uint8")
         return colors
 
     def overlay_boxes(self, image, predictions):
@@ -211,19 +220,9 @@ class COCODemo(object):
         """
         masks = predictions.get_field("mask").numpy()
         labels = predictions.get_field("labels")
-        relation_vals = predictions.get_field("relation_val").numpy()
-        inds = np.argsort(relation_vals)
 
         overlay = image.copy()
         output = image.copy()
-
-        colors = []
-        num = len(labels)
-        for i in range(num):
-            ind = np.argwhere(inds == i)[0][0]
-            color = np.uint8([[[0, 150, 0+int(200/num)*ind]]])
-            bgr_color = cv2.cvtColor(color, cv2.COLOR_HSV2BGR)[0][0].tolist()
-            colors.append(bgr_color)
 
         # colors = self.compute_colors_for_labels(labels).tolist()
         # for mask, color in zip(masks, colors):
@@ -231,9 +230,18 @@ class COCODemo(object):
         #     contours, hierarchy = cv2_util.findContours(
         #         thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
         #     )
-        #     image = cv2.drawContours(image, contours, -1, color, 3)
-        # composite = image
+        #     # image = cv2.drawContours(image, contours, -1, color, 3)
+        #     overlay = cv2.fillPoly(overlay, contours, color)
 
+        relation_vals = predictions.get_field("relation_val").numpy()
+        inds = np.argsort(relation_vals)
+        colors = []
+        num = len(labels)
+        for i in range(num):
+            ind = np.argwhere(inds == i)[0][0]
+            color = np.uint8([[[0, 255, 10 + int(240 / num) * ind]]])
+            bgr_color = cv2.cvtColor(color, cv2.COLOR_HSV2BGR)[0][0].tolist()
+            colors.append(bgr_color)
         for mask, color in zip(masks, colors):
             thresh = mask[0, :, :, None]
             contours, hierarchy = cv2_util.findContours(
@@ -304,10 +312,18 @@ class COCODemo(object):
         """
         scores = predictions.get_field("scores").tolist()
         labels = predictions.get_field("labels").tolist()
-        relation_vals = predictions.get_field("relation_val").tolist()
         labels = [self.CATEGORIES[i] for i in labels]
         boxes = predictions.bbox
 
+        # template = "{}: {:.2f}"
+        # for box, score, label in zip(boxes, scores, labels):
+        #     x, y = box[:2]
+        #     s = template.format(label, score)
+        #     cv2.putText(
+        #         image, s, (x, y), cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1
+        #     )
+
+        relation_vals = predictions.get_field("relation_val").tolist()
         # template = "{}: {:.2f}, {:.4f}"
         template = "{:.4f}"
         for box, score, label, val in zip(boxes, scores, labels, relation_vals):

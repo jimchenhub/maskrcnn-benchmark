@@ -59,9 +59,14 @@ def train(cfg, local_rank, distributed):
     output_dir = cfg.OUTPUT_DIR
 
     save_to_disk = get_rank() == 0
-    checkpointer = DetectronCheckpointer(
-        cfg, model, optimizer, scheduler, output_dir, save_to_disk
-    )
+    if cfg.SOLVER.RELATION_FINETUNE:
+        checkpointer = DetectronCheckpointer(
+            cfg, model, None, None, output_dir, save_to_disk
+        )
+    else:
+        checkpointer = DetectronCheckpointer(
+            cfg, model, optimizer, scheduler, output_dir, save_to_disk
+        )
     extra_checkpoint_data = checkpointer.load(cfg.MODEL.WEIGHT)
     arguments.update(extra_checkpoint_data)
 

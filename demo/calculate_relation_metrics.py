@@ -50,9 +50,9 @@ def build_transform(cfg):
     return transform
 
 # config
-config_file = "configs/e2e_mask_rcnn_R_50_FPN_1x_relation_Tencent.yaml"
+config_file = "configs/e2e_mask_rcnn_R_50_FPN_1x_relation_finetune_Tencent.yaml"
 cfg.merge_from_file(config_file)
-cfg.merge_from_list(["MODEL.DEVICE", "cuda", "OUTPUT_DIR", "output_relation/"])
+cfg.merge_from_list(["MODEL.DEVICE", "cuda", "OUTPUT_DIR", "output_relation_finetune/","TEST.IMS_PER_BATCH","1"])
 
 min_image_size = 600
 confidence_threshold = 0.7

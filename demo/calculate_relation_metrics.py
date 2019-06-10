@@ -50,9 +50,9 @@ def build_transform(cfg):
     return transform
 
 # config
-config_file = "../configs/e2e_mask_rcnn_R_50_FPN_1x_relation_Tencent.yaml"
+config_file = "configs/e2e_mask_rcnn_R_50_FPN_1x_relation_Tencent.yaml"
 cfg.merge_from_file(config_file)
-cfg.merge_from_list(["MODEL.DEVICE", "cuda", "OUTPUT_DIR", "../output_relation/"])
+cfg.merge_from_list(["MODEL.DEVICE", "cuda", "OUTPUT_DIR", "output_relation/"])
 
 min_image_size = 600
 confidence_threshold = 0.7
@@ -93,9 +93,11 @@ print(len(data_loader))
 t1 = time.time()
 for ni, (images, targets, image_ids) in enumerate(data_loader):
     images = images.to(device)
-    with torch.no_grad():
-        outputs = model(images)
-
+    try:
+        with torch.no_grad():
+            outputs = model(images)
+    except:
+        continue
     targets = [target.to(device) for target in targets]
 
     for output, target in zip(outputs, targets):

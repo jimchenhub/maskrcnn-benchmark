@@ -53,5 +53,5 @@ SOLVER:
   WARMUP_ITERS: 0
   RELATION_FINETUNE: True
 TEST:
-  IMS_PER_BATCH: 4
+  IMS_PER_BATCH: 32
 OUTPUT_DIR: output_relation_finetune/

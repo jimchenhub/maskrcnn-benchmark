@@ -8,15 +8,15 @@ import numpy as np
 pylab.rcParams['figure.figsize'] = 20, 12
 
 from maskrcnn_benchmark.config import cfg
-from predictor_tencent import COCODemo
+from predictor_tencent_relation import COCODemo
 
 
-config_file = "../configs/e2e_mask_rcnn_R_50_FPN_1x_relation_finetune_Tencent.yaml"
+config_file = "../configs/e2e_mask_rcnn_R_50_FPN_1x_relation_Tencent.yaml"
 
 # update the config options with the config file
 cfg.merge_from_file(config_file)
 # manual override some options
-cfg.merge_from_list(["MODEL.DEVICE", "cuda", "OUTPUT_DIR", "../output_relation_finetune/"])
+cfg.merge_from_list(["MODEL.DEVICE", "cuda", "OUTPUT_DIR", "../output_relation/"])
 
 coco_demo = COCODemo(
     cfg,
@@ -52,7 +52,7 @@ for name in names:
     image = np.array(pil_image)[:, :, [2, 1, 0]]
     # compute predictions
     predictions = coco_demo.run_on_opencv_image(image)
-    cv2.imwrite("/home/jim/Documents/mask_relation_finetune_mask_vis_110000/"+output_name, predictions[:,:,])
+    cv2.imwrite("/home/jim/Documents/mask_relation_test_vis_60000/"+output_name, predictions[:,:,])
     # cv2.imwrite("/home/jim/Documents/4ring_ms_result/"+output_name, predictions[:,:,])
     print(output_name)
     # break

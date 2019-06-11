@@ -43,7 +43,7 @@ class ROIRelationHead(torch.nn.Module):
         self.post_processor = make_roi_relation_post_processor(cfg)
         self.loss_evaluator = make_roi_relation_loss_evaluator(cfg)
 
-    def forward(self, roi_mask_features, proposals, targets):
+    def forward(self, roi_mask_features, selected_mask, proposals, targets):
         """
         Arguments:
             roi_mask_features (list[Tensor]): feature-maps from mask head
@@ -62,7 +62,7 @@ class ROIRelationHead(torch.nn.Module):
             all_proposals = proposals
             proposals, positive_inds = keep_only_positive_boxes(proposals)
         # feature extractor
-        x = self.feature_extractor(roi_mask_features)
+        x = self.feature_extractor(roi_mask_features, selected_mask)
         relation_logits = self.predictor(x)
 
         if not self.training:

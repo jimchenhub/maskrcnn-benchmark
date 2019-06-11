@@ -17,7 +17,7 @@ class RelationFeatureExtractor(nn.Module):
     def __init__(self, cfg):
         super(RelationFeatureExtractor, self).__init__()
 
-        input_channels = 256
+        input_channels = 257
 
         self.relation_fcn1 = nn.Conv2d(input_channels, 256, 3, 1, 1)
         self.relation_fcn2 = nn.Conv2d(256, 128, 3, 1, 1)
@@ -33,7 +33,9 @@ class RelationFeatureExtractor(nn.Module):
             nn.init.kaiming_uniform_(l.weight, a=1)
             nn.init.constant_(l.bias, 0)
 
-    def forward(self, x):
+    def forward(self, x, mask):
+        mask_pool = F.max_pool2d(mask, kernel_size=2, stride=2)
+        x = torch.cat((x, mask_pool), 1)
         x = F.relu(self.relation_fcn1(x))
         x = F.relu(self.relation_fcn2(x))
         x = F.relu(self.relation_fcn3(x))

@@ -40,7 +40,7 @@ class CombinedROIHeads(torch.nn.ModuleDict):
             # During training, self.box() will return the unaltered proposals as "detections"
             # this makes the API consistent during training and testing
             if not self.cfg.MODEL.MASKIOU_ON:
-                x, detections, loss_mask = self.mask(mask_features, detections, targets)
+                x, detections, loss_mask, selected_mask = self.mask(mask_features, detections, targets)
                 losses.update(loss_mask)
             else:
                 x, detections, loss_mask, roi_feature, selected_mask, labels, maskiou_targets = self.mask(mask_features,
@@ -54,7 +54,7 @@ class CombinedROIHeads(torch.nn.ModuleDict):
 
             # if relation head used
             if self.cfg.MODEL.RELATION_ON:
-                detections, loss_relation = self.relation(roi_mask_features, detections, targets)
+                detections, loss_relation = self.relation(roi_mask_features, selected_mask, detections, targets)
                 losses.update(loss_relation)
 
         if self.cfg.MODEL.KEYPOINT_ON:

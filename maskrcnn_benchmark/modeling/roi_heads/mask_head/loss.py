@@ -164,13 +164,15 @@ class MaskRCNNLossComputation(object):
         # torch.mean (in binary_cross_entropy_with_logits) doesn't
         # accept empty tensors, so handle it separately
         if mask_targets.numel() == 0:
+            # -------------------------
+            selected_index = torch.arange(mask_logits.shape[0], device=labels.device)
+            selected_mask = mask_logits[selected_index, labels]
+            mask_num, mask_h, mask_w = selected_mask.shape
+            selected_mask = selected_mask.reshape(mask_num, 1, mask_h, mask_w)
+            # -------------------------
             if not self.maskiou_on:
-                return mask_logits.sum() * 0
+                return mask_logits.sum() * 0, selected_mask
             else:
-                selected_index = torch.arange(mask_logits.shape[0], device=labels.device)
-                selected_mask = mask_logits[selected_index, labels]
-                mask_num, mask_h, mask_w = selected_mask.shape
-                selected_mask = selected_mask.reshape(mask_num, 1, mask_h, mask_w)
                 return mask_logits.sum() * 0, selected_mask, labels, None
 
         if self.maskiou_on:
@@ -192,14 +194,16 @@ class MaskRCNNLossComputation(object):
         mask_loss = F.binary_cross_entropy_with_logits(
             mask_logits[positive_inds, labels_pos], mask_targets
         )
+        # ---------------
+        selected_index = torch.arange(mask_logits.shape[0], device=labels.device)
+        selected_mask = mask_logits[selected_index, labels]
+        mask_num, mask_h, mask_w = selected_mask.shape
+        selected_mask = selected_mask.reshape(mask_num, 1, mask_h, mask_w)
+        selected_mask = selected_mask.sigmoid()
+        # ---------------
         if not self.maskiou_on:
-            return mask_loss
+            return mask_loss, selected_mask
         else:
-            selected_index = torch.arange(mask_logits.shape[0], device=labels.device)
-            selected_mask = mask_logits[selected_index, labels]
-            mask_num, mask_h, mask_w = selected_mask.shape
-            selected_mask = selected_mask.reshape(mask_num, 1, mask_h, mask_w)
-            selected_mask = selected_mask.sigmoid()
             return mask_loss, selected_mask, labels, maskiou_targets
 
 

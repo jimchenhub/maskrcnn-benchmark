@@ -1,6 +1,6 @@
 MODEL:
   META_ARCHITECTURE: "GeneralizedRCNN"
-  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-50"
+  WEIGHT: "output/model_final.pth"
   BACKBONE:
     CONV_BODY: "R-50-FPN"
   RESNETS:
@@ -31,7 +31,6 @@ MODEL:
     RESOLUTION: 28
     SHARE_BOX_FEATURE_EXTRACTOR: False
   MASK_ON: True
-  RELATION_ON: True
 DATASETS:
   TRAIN: ("tencent_auto_drive_2019_train_cocostyle",)
   TEST: ("tencent_auto_drive_2019_val_cocostyle",)
@@ -45,11 +44,13 @@ INPUT:
   MAX_SIZE_TEST: 960
 SOLVER:
   IMS_PER_BATCH: 16
-  BASE_LR: 0.02
+  BASE_LR: 0.001
   WEIGHT_DECAY: 0.0001
-  STEPS: (60000, 80000)
-  MAX_ITER: 90000
+  STEPS: (120000, )
+  MAX_ITER: 130000
   CHECKPOINT_PERIOD: 10000
+  WARMUP_ITERS: 0
+  FINETUNE: True
 TEST:
-  IMS_PER_BATCH: 1
-OUTPUT_DIR: output_relation/
+  IMS_PER_BATCH: 32
+OUTPUT_DIR: output_finetune/

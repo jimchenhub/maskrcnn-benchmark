@@ -59,7 +59,7 @@ def train(cfg, local_rank, distributed):
     output_dir = cfg.OUTPUT_DIR
 
     save_to_disk = get_rank() == 0
-    if cfg.SOLVER.RELATION_FINETUNE:
+    if cfg.SOLVER.FINETUNE:
         checkpointer = DetectronCheckpointer(
             cfg, model, None, None, output_dir, save_to_disk
         )

@@ -86,10 +86,10 @@ class ROIMaskHead(torch.nn.Module):
         else:
             if not self.training:
                 result = self.post_processor(mask_logits, proposals)
-                return x, result, {}
+                return x, result, {}, None, None
 
             loss_mask, selected_mask = self.loss_evaluator(proposals, mask_logits, targets)
-            return x, all_proposals, dict(loss_mask=loss_mask), selected_mask
+            return x, all_proposals, dict(loss_mask=loss_mask), roi_feature, selected_mask
 
 
 def build_roi_mask_head(cfg, in_channels):

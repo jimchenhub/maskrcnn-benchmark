@@ -86,7 +86,10 @@ class ROIMaskHead(torch.nn.Module):
         else:
             if not self.training:
                 result = self.post_processor(mask_logits, proposals)
-                return x, result, {}, None, None
+                all_mask = result[0].get_field("mask")
+                for i in range(1, len(result)):
+                    all_mask = torch.cat((all_mask, result[i].get_field("mask")), 0)
+                return x, result, {}, roi_feature, all_mask
 
             loss_mask, selected_mask = self.loss_evaluator(proposals, mask_logits, targets)
             return x, all_proposals, dict(loss_mask=loss_mask), roi_feature, selected_mask

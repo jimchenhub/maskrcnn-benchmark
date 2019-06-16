@@ -32,8 +32,8 @@ MODEL:
     SHARE_BOX_FEATURE_EXTRACTOR: False
   MASK_ON: True
 DATASETS:
-  TRAIN: ("tencent_auto_drive_2019_train_cocostyle",)
-  TEST: ("tencent_auto_drive_2019_val_cocostyle",)
+  TRAIN: ("tencent_auto_drive_old_2019_train_cocostyle",)
+  TEST: ("tencent_auto_drive_old_2019_val_cocostyle",)
 DATALOADER:
   NUM_WORKERS: 0
   SIZE_DIVISIBILITY: 32

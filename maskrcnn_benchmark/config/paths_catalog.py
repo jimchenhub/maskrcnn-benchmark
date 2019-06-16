@@ -15,6 +15,14 @@ class DatasetCatalog(object):
             "img_dir": "tencent/val2019",
             "ann_file": "tencent/annotations/instances_val2019.json"
         },
+        "tencent_auto_drive_old_2019_train_cocostyle": {
+            "img_dir": "tencent_old/train2019",
+            "ann_file": "tencent_old/annotations/instances_train2019.json"
+        },
+        "tencent_auto_drive_old_2019_val_cocostyle": {
+            "img_dir": "tencent_old/val2019",
+            "ann_file": "tencent_old/annotations/instances_val2019.json"
+        },
         "coco_2017_train": {
             "img_dir": "coco/train2017",
             "ann_file": "coco/annotations/instances_train2017.json"

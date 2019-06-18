@@ -40,9 +40,10 @@ def has_valid_annotation(anno):
 
 class COCODataset(torchvision.datasets.coco.CocoDetection):
     def __init__(
-        self, ann_file, root, remove_images_without_annotations, transforms=None
+        self, cfg, ann_file, root, remove_images_without_annotations, transforms=None
     ):
         super(COCODataset, self).__init__(root, ann_file)
+        self.cfg = cfg
         # sort indices for reproducible results
         self.ids = sorted(self.ids)
 
@@ -86,14 +87,15 @@ class COCODataset(torchvision.datasets.coco.CocoDetection):
         target.add_field("masks", masks)
 
         # ----------------------------------
-        # add instance id field
-        ins_ids = [obj["id"] for obj in anno]
-        instance_ids = InstanceId(ins_ids)
-        target.add_field("instance_ids", instance_ids)
-        # add relation field
-        overlaps = [obj["overlap"] for obj in anno]
-        relations = OverlapRelation(overlaps, instance_ids)
-        target.add_field("relations", relations)
+        if self.cfg.MODEL.RELATION_ON:
+            # add instance id field
+            ins_ids = [obj["id"] for obj in anno]
+            instance_ids = InstanceId(ins_ids)
+            target.add_field("instance_ids", instance_ids)
+            # add relation field
+            overlaps = [obj["overlap"] for obj in anno]
+            relations = OverlapRelation(overlaps, instance_ids)
+            target.add_field("relations", relations)
         # ----------------------------------
 
         if anno and "keypoints" in anno[0]:

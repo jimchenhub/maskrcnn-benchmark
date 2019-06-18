@@ -52,4 +52,4 @@ SOLVER:
   CHECKPOINT_PERIOD: 10000
 TEST:
   IMS_PER_BATCH: 32
-OUTPUT_DIR: output_ms/
+OUTPUT_DIR: output_bak/output_ms_lr_2e-2/

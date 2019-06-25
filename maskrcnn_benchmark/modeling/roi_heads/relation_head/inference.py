@@ -57,6 +57,7 @@ class RelationPostProcessor(nn.Module):
             # box.add_field("mask", masks)
 
         # print(time.time()-t1)
+        
         return boxes
 
 def make_roi_relation_post_processor(cfg):

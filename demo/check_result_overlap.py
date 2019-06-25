@@ -137,7 +137,7 @@ for ni, (images, targets, image_ids) in enumerate(data_loader):
         except:
             continue
 
-        if output.has_field("mask"):
+        if output.has_field("mask") and list(output.get_field("mask").size()[-2:]) != [600, 960]:
             # if we have masks, paste the masks in the right position
             # in the image, as defined by the bounding boxes
             masks = output.get_field("mask")
@@ -221,11 +221,11 @@ for ni, (images, targets, image_ids) in enumerate(data_loader):
                         # break
             # if flag:
             #     break
-        if not flag:
-            continue
-        alpha = 0.5
-        cv2.addWeighted(overlay_image, alpha, output_image, 1 - alpha, 0, output_image)
-        cv2.imwrite("img.jpg", output_image)
+        # if not flag:
+        #     continue
+        # alpha = 0.5
+        # cv2.addWeighted(overlay_image, alpha, output_image, 1 - alpha, 0, output_image)
+        # cv2.imwrite("img.jpg", output_image)
     # if ni == 2:
     #     t2 = time.time()
     #     print(t2-t1, ni)

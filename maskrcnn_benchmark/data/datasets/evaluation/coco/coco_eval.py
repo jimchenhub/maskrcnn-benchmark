@@ -124,6 +124,7 @@ def prepare_for_coco_segmentation(predictions, dataset, maskiou_on):
         if list(masks.shape[-2:]) != [image_height, image_width]:
             masks = masker(masks.expand(1, -1, -1, -1, -1), prediction)
             masks = masks[0]
+
         # logger.info('Time mask: {}'.format(time.time() - t))
         # prediction = prediction.convert('xywh')
 
@@ -133,6 +134,33 @@ def prepare_for_coco_segmentation(predictions, dataset, maskiou_on):
         else:
             scores = prediction.get_field("scores").tolist()
         labels = prediction.get_field("labels").tolist()
+
+        # refine mask if relation value given
+        if prediction.has_field("relation_val"):
+            import math
+            # rel_val = prediction.get_field("relation_val")
+            rel_val = scores
+            boxes = prediction.bbox.tolist()
+            num = masks.size(0)
+            for i in range(num):
+                box1 = boxes[i]
+                for j in range(i + 1, num):
+                    box2 = boxes[j]
+                    if box1[0] > box2[2] or box2[0] > box1[2] or box1[1] > box2[3] or box2[1] > box1[3]:
+                        continue
+                    x_min = math.floor(min(box1[0], box2[0]))
+                    x_max = math.ceil(max(box1[2], box2[2]))
+                    y_min = math.floor(min(box1[1], box2[1]))
+                    y_max = math.ceil(max(box1[3], box2[3]))
+                    overlap = masks[i][0][y_min:y_max, x_min:x_max] & masks[j][0][y_min:y_max, x_min:x_max]
+                    is_overlap = bool((overlap > 0).any())
+                    if is_overlap:
+                        if rel_val[i] > rel_val[j]:
+                            masks[j][0][y_min:y_max, x_min:x_max] = masks[j][0][y_min:y_max, x_min:x_max] - overlap
+                        elif rel_val[j] > rel_val[i]:
+                            masks[i][0][y_min:y_max, x_min:x_max] = masks[i][0][y_min:y_max, x_min:x_max] - overlap
+
+
 
         # rles = prediction.get_field('mask')
 
